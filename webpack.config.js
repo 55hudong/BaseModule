@@ -70,12 +70,12 @@ module.exports = {
                 loaders: ["ts-loader"]
             },
             {
-                test: /\.css$/,
+                test: /\.(css|scss)$/,
                 loaders: ["style-loader", "css-loader", "sass-loader"]
             },
             {
                 test: /\.html$/,
-                loaders: ['html-loader']
+                loaders: ['html-loader?exportAsEs6Default']
             },
             {
                 test: /\.(png|jpg|jpeg|svg)$/,
@@ -92,7 +92,7 @@ module.exports = {
         contentBase: path.join(__dirname),
         compress: false,
         host: "0.0.0.0",
-        port: 9000
+        port: 9010
     }
 
 };

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>LoadQueue示例</title>
+</head>
+<body>
+
+<h3>Hello</h3>
+
+<div>
+
+
+</div>
+
+<script src="../../build/LoadQueue.js"></script>
+<script>
+
+    var loadQueue = new LoadQueue();
+
+    loadQueue.addSource({
+        id: 1,
+        src: "../assets/images"
+    });
+
+    console.log(loadQueue);
+
+</script>
+
+</body>
+</html>

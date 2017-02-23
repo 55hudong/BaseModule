@@ -128,17 +128,21 @@ export default class LoadQueue{
      * @param sourceList
      * 说明： source.id作为列表的主键，冲突后的资源是无法添加到队列的
      */
-    addSource(sourceList:Source[] = []): this{
-        sourceList.forEach((source:Source) => {
+    addSource(sourceList: Source | Source[] = []): this{
 
-            if(LoadQueue.findIndex(this.queueList, {id: source.id}) !== -1){
-                console.warn(`检测到冲突的id: ${source.id}， 这个资源没有被添加到队列中`);
-                return true;
-            }
+        if(Array.isArray(sourceList)){
+            sourceList.forEach((source:Source) => {
+                if(LoadQueue.findIndex(this.queueList, {id: source.id}) !== -1){
+                    console.warn(`检测到冲突的id: ${source.id}， 这个资源没有被添加到队列中`);
+                    return true;
+                }
+                this.queueList.push(source);
+            });
+        }else{
+            this.addSource([sourceList]);
+        }
 
-            this.queueList.push(source);
 
-        });
         return this;
     }
 
@@ -332,3 +336,5 @@ export default class LoadQueue{
     }
 }
 
+
+window["LoadQueue"] = LoadQueue;

@@ -1,0 +1,76 @@
+.ff-picker{
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: #ccc;
+
+  transform: translate3d(0, 0, 0);
+  transition: transform .3s;
+
+  z-index: 9999;
+}
+
+.ff-picker-mask{
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(#000, .8);
+  
+}
+
+.ff-picker-dialog{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+
+}
+
+.ff-picker-head{
+  display: flex;
+  background-color: #fbf9fe;
+
+  .ff-picker-action{
+    flex: 1;
+
+    padding: 10px 15px;
+
+    &:last-child{
+      text-align: right;
+    }
+  }
+}
+
+.ff-picker-body{
+  display: flex;
+
+  height: 238px;
+
+  background-color: #fff;
+
+  .ff-picker-mask{
+    background: linear-gradient(180deg, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6)), linear-gradient(0deg, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6));
+    background-position: top, bottom;
+    background-size: 100% 102px;
+    background-repeat: no-repeat;
+  }
+
+  .ff-picker-group{
+    flex: 1;
+
+    text-align: center;
+  }
+
+}
+
+.ff-picker-list{
+}
