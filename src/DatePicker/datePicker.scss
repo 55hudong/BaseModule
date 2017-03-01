@@ -1,76 +1,112 @@
-.ff-picker{
+@import "../libs/scss/style";
+
+.ff-date-picker{
   position: fixed;
   top: 0;
   left: 0;
 
   width: 100%;
   height: 100%;
-
-  background-color: #ccc;
-
-  transform: translate3d(0, 0, 0);
-  transition: transform .3s;
-
-  z-index: 9999;
-}
-
-.ff-picker-mask{
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  background-color: rgba(#000, .8);
   
-}
+  @at-root 
+  .ff-picker-mask{
+    position: absolute;
+    top: 0;
+    left: 0;
 
-.ff-picker-dialog{
-  position: absolute;
-  bottom: 0;
-  left: 0;
+    width: 100%;
+    height: 100%;
 
-  width: 100%;
+    background-color: rgba(#000, .6);
+    z-index: -1;
+  }
+  
+  @at-root 
+  .ff-picker-dialog{
+    position: absolute;
+    left: 0;
+    bottom: 0;
 
-}
+    width: 100%;
 
-.ff-picker-head{
-  display: flex;
-  background-color: #fbf9fe;
+    background-color: #fff;
+  }
 
-  .ff-picker-action{
-    flex: 1;
+  @at-root
+  .ff-picker-head{
+    display: flex;
 
-    padding: 10px 15px;
+    padding: .15rem;
+    border-bottom: 1px solid #f5f5f5;
 
-    &:last-child{
-      text-align: right;
+    .ff-picker-action{
+      flex: 1;
+
+      text-align: center;
+
+      &:first-child{
+        border-right: 1px solid #f5f5f5;
+      }
     }
   }
-}
 
-.ff-picker-body{
-  display: flex;
+  @at-root
+  .ff-picker-body{
+    $itemHeight: .5rem;
 
-  height: 238px;
+    display: flex;
 
-  background-color: #fff;
+    padding: .65rem .25rem;
 
-  .ff-picker-mask{
-    background: linear-gradient(180deg, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6)), linear-gradient(0deg, hsla(0, 0%, 100%, .95), hsla(0, 0%, 100%, .6));
-    background-position: top, bottom;
-    background-size: 100% 102px;
-    background-repeat: no-repeat;
-  }
-
-  .ff-picker-group{
-    flex: 1;
-
+    font-size: .28rem;
     text-align: center;
+
+    @at-root
+    .ff-picker-group{
+      flex: 1;
+
+      overflow: hidden;
+
+
+      position: relative;
+
+      &:before,
+      &:after{
+        content: " ";
+        display: block;
+
+        position: absolute;
+        top: $itemHeight*2;
+        left: 0;
+
+        width: 100%;
+        height: 1px;
+
+        background-color: $borderColor;
+      }
+
+      &:after{
+        top: $itemHeight*3;
+      }
+
+    }
+
+    .ff-picker-list{
+
+
+      .ff-picker-item{
+
+        line-height: $itemHeight;
+
+        color: $textMuteColor;
+
+        &.active{
+          color: $textMainColor;
+        }
+
+      }
+    }
   }
 
-}
 
-.ff-picker-list{
 }

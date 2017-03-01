@@ -1,0 +1,41 @@
+
+/**
+ * 文本溢出隐藏
+ */
+@mixin text-truncate() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin size($width, $height){
+  width: $width;
+  height: $height;
+}
+
+/**
+ * 按钮边框清除
+ */
+@mixin btn-reset(){
+  border: none;
+  outline: none;
+}
+
+/**
+ * 浮动清理
+ */
+@mixin clearfix(){
+  &:before, &:after{
+    content: " ";
+    display: block;
+    clear: both;
+  }
+}
+
+/**
+ * 背景图片设置
+ */
+@mixin background-image($url){
+  background: url($url) no-repeat;
+  background-size: cover;
+}

@@ -2,16 +2,26 @@
  * Created by coffee on 23/02/2017.
  */
 
+import $ from "webpack-zepto";
+import Scroll from "./scroll";
+
 import htmlStr from "./datePicker.html";
 import "./datePicker.scss"
 
-console.log(htmlStr);
+window.$ = $;
 
 class DatePicker{
 
     constructor(){
 
         document.body.insertAdjacentHTML("beforeEnd", htmlStr);
+
+        $(".ff-picker-scroll").each((i, e) => {
+
+            new Scroll({
+                el: e
+            })
+        });
 
     }
 
