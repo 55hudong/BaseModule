@@ -5,6 +5,10 @@
 import $ from "webpack-zepto";
 import Scroll from "./scroll";
 
+import Tween from "../libs/tween";
+
+console.log(Tween);
+
 import htmlStr from "./datePicker.html";
 import "./datePicker.scss"
 
@@ -18,7 +22,7 @@ class DatePicker{
 
         $(".ff-picker-scroll").each((i, e) => {
 
-            new Scroll({
+            window["s" + i] = new Scroll({
                 el: e
             })
         });

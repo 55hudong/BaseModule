@@ -64,7 +64,6 @@ export default class Scroll{
         }).on("touchmove", (event: TouchEvent) => {
             event.preventDefault();
 
-            console.log(event.changedTouches[0]);
             console.log(`event type: ${event.type}.`);
 
             endY = event.changedTouches[0].pageY;
@@ -76,6 +75,24 @@ export default class Scroll{
             console.log(`event type: ${event.type}.`);
 
         });
+    }
+
+    /**
+     * 计算当前命中的列表项
+     * 说明：以可视区域的下边框为界, 命中的选项高出自身一半，便视为命中
+     * 取值范围： start: 0, end: items.length-1
+     * @private
+     */
+    _getCurrentIndex():number{
+
+        let y:number = this._getOriginY() - this.defaults.itemHeight;
+
+        let index:number = Math.round(y/this.defaults.itemHeight);
+
+        //console.log(y%this.defaults.itemHeight);
+
+        return -(index + 1);
+
     }
 
     _scrollY(y: number = 0){
