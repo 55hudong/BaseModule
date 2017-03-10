@@ -56,18 +56,26 @@ module.exports = {
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, "build"),
-        publicPath: "/build/"
+        publicPath: "/build/",
+
+        // export to AMD, CommonJS, or window
+        libraryTarget: 'umd',
+
+        // set the following name if exporting to window
+        library: '[name]'
     },
 
     module: {
         loaders: [
             {
                 test: /\.js|/,
-                loaders: ["babel-loader"]
+                loaders: ["babel-loader", "eslint-loader"],
+                exclude: /node_modules/
             },
             {
                 test: /\.ts/,
-                loaders: ["ts-loader"]
+                loaders: ["ts-loader"],
+                exclude: /node_modules/
             },
             {
                 test: /\.(css|scss)$/,

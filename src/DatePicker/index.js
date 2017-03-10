@@ -5,12 +5,10 @@
 import $ from "webpack-zepto";
 import Scroll from "./scroll";
 
-import Tween from "../libs/tween";
-
-console.log(Tween);
+import Tween from "../Tween/index";
 
 import htmlStr from "./datePicker.html";
-import "./datePicker.scss"
+import "./datePicker.scss";
 
 window.$ = $;
 
@@ -24,7 +22,7 @@ class DatePicker{
 
             window["s" + i] = new Scroll({
                 el: e
-            })
+            });
         });
 
     }
@@ -62,4 +60,4 @@ class DatePicker{
 }
 
 
-window["DatePicker"] = DatePicker;
+module.exports = DatePicker;

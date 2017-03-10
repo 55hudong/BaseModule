@@ -1,10 +1,11 @@
-import Utils from  "./utils";
+import Utils from  "../libs/Utils";
+import cssPlugin from "./plugins/cssPlugin";
 
 /*
  * Tween.js
  * t: current time（当前时间）；
  * b: beginning value（初始值）；
- * c: change in value（变化量）；
+ * c: change in value（变化量）； 说明： 假设 y 从 100 - 1000, 变化量应该是900
  * d: duration（持续时间）。
  * you can visit 'http://easings.net/zh-cn' to get effect
  */
@@ -181,51 +182,224 @@ const requestAnimationFrame = window.requestAnimationFrame || window.webkitReque
 
 class Tween{
 
+    _startTime:number;
+
     /**
+     * 缓动动画已经运行时间
+     * 说明： 通过不断累积每一帧所花费的时间
+     */
+    _runningTime:number;
+
+    /**
+     * 哪个插件支持该目标
+     */
+    _pluginIndex:number;
+
+    /**
+     * 缓动动画执行时候的帧率，在缓动停止的时候会设置成0
+     */
+    fps:number;
+
+    constructor(target:any, fromProps:any, toProps:any, duration:number, ease:TweenType){
+
+        this._events = {
+            onUpdate: null,
+            onComplete: null
+        };
+
+        // 这里两者都是同时拷贝，而不改变其自身属性，因为css样式以后需要引入额外插件来支持，现阶段只能在onUpdate事件里面手动维护
+        this.fromProps = Utils.clone(fromProps);
+        this._fromPropsOrigin = Utils.clone(fromProps);
+        this.toProps = toProps;
+        this.ease = ease;
+        this.duration = duration;
+
+        this._running = false;
+
+        Tween.plugins.forEach((plugin, index) => {
+            if(plugin.isSupport(target)){
+                this._pluginIndex = index;
+            }
+        });
+
+        if(!Utils.isUndefined(this._pluginIndex)){
+            console.info("命中了插件：" + Tween.plugins[this._pluginIndex].name);
+        }
+
+
+    }
+
+    onUpdate(callback:Function):this{
+        this._events.onUpdate = callback;
+        return this;
+    }
+
+    onComplete(callback:Function):this{
+        this._events.onComplete = callback;
+        return this;
+    }
+
+    /**
+     * 开始动画
+     * 说明： stop()之后的动画会重新开始
+     * @return {Tween}
+     */
+    start():this{
+        this._running = true;
+        this._runningTime = 0;
+        this.fps = 0;
+
+        requestAnimationFrame(this._update.bind(this));
+
+        return this;
+    }
+
+    /**
+     * 停止动画
+     * @return {Tween}
+     */
+    stop():this{
+        this._running = false;
+        this._startTime = null;
+        this.fps = 0;
+        return this;
+    }
+
+    /**
+     * 上一帧的时间
+     */
+    _lastTime:number;
+
+    _update(now){
+
+        // 初始化开始时间
+        if(Utils.isUndefined(this._lastTime)){
+            this._lastTime = now;
+            requestAnimationFrame(this._update.bind(this));
+            return false;
+        }
+
+        this.fps = 1000/(now - this._lastTime);
+
+        this._runningTime += now - this._lastTime;
+
+        if(this._runningTime >= this.duration){
+            this.stop();
+            this._fixedInEnd();
+            this._events.onComplete && this._events.onComplete.call(this.fromProps);
+        }
+
+        this._events.onUpdate && this._events.onUpdate.call(this.fromProps);
+
+        // 计算需要缓动的属性和对应值
+        Object.keys(this.toProps).forEach((prop) => {
+
+            this.fromProps[prop] = this.ease(this._runningTime, this._fromPropsOrigin[prop], this.toProps[prop] - this._fromPropsOrigin[prop], this.duration);
+
+        });
+
+        if(this._running){
+            this._lastTime = now;
+            requestAnimationFrame(this._update.bind(this));
+        }
+    }
+
+    /**
+     * 将缓动属性对齐
+     * 说明： 因为结束时间几乎不可能卡在结束的那一毫秒，所以结束后需要手动将误差对齐
+     * @private
+     */
+    _fixedInEnd(){
+        Object.keys(this.toProps).forEach((prop) => {
+            this.fromProps[prop] = this.toProps[prop];
+        });
+    }
+
+    /**
+     * 以对象自身属性为起点，缓动到目标属性
      * @param target 选中对象
      * @param toProps 目标属性
      * @param duration {number} 耗时。 单位毫秒
-     * @param callback {Function}
+     * @param ease 缓动类型
+     * @param callback {Function} 完成之后的回调
      */
-    static to(target:any , toProps:any, duration:number, callback:Function){
+    static to(target:any , toProps:any, duration:number, ease:TweenType = Tween.Ease.Linear, callback?:Function): Tween{
 
-        let startTime: number = Date.now(),
-            endTime: number   = 0;
+        // 构建一个fromProps，重新生成一个Tween对象
+        let fromProps = {};
+        for(let i in toProps){
+            if(toProps.hasOwnProperty(i)) fromProps[i] = target[i];
+        }
 
-        let animate = function (now) {
+        let tween = new Tween(target, fromProps, toProps, duration, ease);
 
-            let y = TweenType.Linear(now, 0, 1000, duration);
+        if(callback){
+            tween.onComplete(callback);
+        }
 
-            for(let prop in toProps){
-                
-            }
+        return tween;
+    }
 
+    /**
+     * 指定对象开始属性，缓动到目标属性
+     * @param target 选中对象
+     * @param fromProps 开始属性
+     * @param toProps 目标属性
+     * @param duration {number} 耗时。 单位毫秒
+     * @param ease 缓动类型
+     * @param callback {Function} 完成之后的回调
+     */
+    static fromTo(target:any, fromProps:any, toProps:any, duration:number, ease:TweenType = Tween.Ease.Linear, callback?:Function): Tween{
 
-            if(now < duration){
-                requestAnimationFrame(animate);
-            }else{
-                // 动画执行完成了
-                // 因为动画不会凑巧是在指定时间内结束，可能存在误差几ms，所以停止的时候做一次校准
+        let tween = new Tween(target, fromProps, toProps, duration, ease);
 
+        if(callback){
+            tween.onComplete(callback);
+        }
 
-            }
-
-            console.log(y);
-
-
-        };
-
-        requestAnimationFrame(animate);
-
+        return tween;
     }
 
 }
 
-console.log(Tween.requestAnimationFrame);
+// 设置为静态属性
+Tween.Ease = TweenType;
 
-Tween.to({speed: 100}, {speed: 1000}, 2000, function () {
+Tween.plugins = [
+    cssPlugin
+];
 
-});
+const tester = {
+
+    player: document.createElement("div"),
+
+    init(){
+        this.player.className = "test-doter";
+        this.player.style.position = "absolute";
+        this.player.style.top = "0";
+        this.player.style.left = "0";
+        this.player.style.width = "30px";
+        this.player.style.height = "30px";
+        this.player.style.background = "red";
+        this.player.style.borderRadius = "50%";
+        this.player.style.zIndex = "11111";
+
+        document.body.appendChild(this.player);
+    }
+
+};
+
+tester.init();
+
+window.t = Tween.to({x: 0, y:0}, {x: window.innerWidth - 30, y: window.innerHeight - 30}, 2000, Tween.Ease.Cubic.easeInOut)
+    .onUpdate(function () {
+        console.log(this.x, this.y);
+        tester.player.style.top = `${this.y}px`;
+        tester.player.style.left = `${this.x}px`;
+    })
+    .onComplete(function () {
+        console.info("I'm finish");
+    });
 
 
-export default TweenType;
+export default Tween;

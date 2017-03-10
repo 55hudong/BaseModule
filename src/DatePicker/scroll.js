@@ -3,8 +3,17 @@
  */
 
 import $ from "webpack-zepto";
+import Tween from "../Tween/index";
 
 export default class Scroll{
+
+    /**
+     * 滑动停止的时候，滚动元素在最后0.2s附带的速度
+     */
+    speedX:number;
+    speedY:number;
+
+    tween:Tween;
 
     constructor(options = {}){
 
@@ -44,22 +53,81 @@ export default class Scroll{
     }
 
     _init(){
+        let _this = this;
 
         this.scrollWrapper.height(this.defaults.itemHeight*5);
         this.scrollListItem.eq(0).addClass("active").siblings().removeClass("active");
-
 
         let startY: number  = 0,
             endY: number    = 0,
             originY: number = 0;
 
+        let speedRecord = {
+
+            _prevTime: null, // 上一次计算位置的时间，一般来说每隔0.2s就会刷新一次
+            _prevY: null, // 上一个计算时间单位中的位置。 用来计算最后0.2s的速度
+
+            _running: false,
+
+            _speed: {
+                x: 0,
+                y: 0
+            },
+
+            /**
+             * 开始记录每帧中的速度
+             */
+            start(){
+
+                this._running = true;
+
+                let lastTime:number,
+                    lastY:number;
+
+                let go = (now:number) => {
+
+                    if(!lastTime){
+                        lastTime = now;
+                        lastY = endY;
+                    }
+
+                    let interval = now - lastTime;
+
+                    this._speed.y = (lastY - endY)/(interval/1000);
+
+                    lastTime = now;
+                    lastY = endY;
+                    if(this._running){
+                        window.requestAnimationFrame(go);
+                    }
+
+                };
+
+                window.requestAnimationFrame(go);
+            },
+
+            stop(){
+                this._running = false;
+            },
+
+            /**
+             * 返回一个对象，包含着x轴的速度和y轴的速度
+             * @return {{x: number, y: number}}
+             */
+            getSpeed(){
+                return this._speed;
+            }
+        };
+
         this.scrollList.on("touchstart", (event: TouchEvent) => {
 
-            startY = event.changedTouches[0].pageY;
+            startY = endY = event.changedTouches[0].pageY;
 
             originY = this._getOriginY();
 
             console.log(`event type: ${event.type}.`);
+
+            speedRecord.start();
 
         }).on("touchmove", (event: TouchEvent) => {
             event.preventDefault();
@@ -71,10 +139,44 @@ export default class Scroll{
             this._scrollY(endY - startY + originY);
 
         }).on("touchend", (event) => {
+            speedRecord.stop();
 
             console.log(`event type: ${event.type}.`);
 
+            console.log(`speed: ${speedRecord.getSpeed().y}px/s`);
+
+            this._startInertia(speedRecord.getSpeed());
+
         });
+    }
+
+    /**
+     * 对滚动元素执行惯性动画
+     * @private
+     */
+    _startInertia(speed){
+
+        let _this = this;
+
+        let y = this._getOriginY();
+
+        this.tween = Tween.to({speed: speed.y}, {speed: 0}, 500);
+
+        this.tween.onUpdate(function () {
+
+            console.log(this.speed);
+
+            _this._scrollY(_this._getOriginY() + -this.speed*_this.tween.fps/1000*0.5);
+
+
+        }).onComplete(function () {
+        });
+
+        this.tween.start();
+    }
+
+    _stopInertia(){
+
     }
 
     /**
@@ -98,8 +200,8 @@ export default class Scroll{
     _scrollY(y: number = 0){
 
         this.scrollList.css({
-            transform      : `translate3d(0, ${ y + this.defaults.itemHeight * 2}px, 0)`,
-            webkitTransform: `translate3d(0, ${ y + this.defaults.itemHeight * 2}px, 0)`
+            transform      : `translate3d(0, ${ y + this.defaults.offsetHeight}px, 0)`,
+            webkitTransform: `translate3d(0, ${ y + this.defaults.offsetHeight}px, 0)`
         });
 
     }
