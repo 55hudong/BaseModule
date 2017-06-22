@@ -62,14 +62,16 @@ module.exports = {
         libraryTarget: 'umd',
 
         // set the following name if exporting to window
-        library: '[name]'
+        library: '[name]',
+        libraryExport: "default",
+
     },
 
     module: {
         loaders: [
             {
                 test: /\.js|/,
-                loaders: ["babel-loader", "eslint-loader"],
+                loaders: ["babel-loader"],
                 exclude: /node_modules/
             },
             {

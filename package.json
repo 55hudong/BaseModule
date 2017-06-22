@@ -35,7 +35,7 @@
     "ts-loader": "^2.0.0",
     "typescript": "^2.1.6",
     "vconsole": "^2.5.2",
-    "webpack": "^2.2.1",
+    "webpack": "3.0.0",
     "webpack-zepto": "^0.0.1"
   },
   "devDependencies": {

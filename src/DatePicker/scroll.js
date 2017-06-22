@@ -47,6 +47,11 @@ export default class Scroll{
         this.defaults.itemHeight   = this.scrollListItem.height();
         this.defaults.offsetHeight = this.defaults.itemHeight * 2;
 
+        this.defaults.maxTop = this.defaults.offsetHeight;
+        this.defaults.minTop = this.scrollList.height() - this.defaults.offsetHeight - this.defaults.itemHeight;
+
+        console.log(this.defaults.maxTop, this.defaults.minTop);
+
         this._scrollY(0);
 
         this._init();
@@ -62,6 +67,10 @@ export default class Scroll{
             endY: number    = 0,
             originY: number = 0;
 
+        /**
+         * 运动速度计算思路：
+         * 记录上一帧的触发时间和距离，和当前进行对比得出速度。
+         */
         let speedRecord = {
 
             _prevTime: null, // 上一次计算位置的时间，一般来说每隔0.2s就会刷新一次
@@ -198,6 +207,14 @@ export default class Scroll{
     }
 
     _scrollY(y: number = 0){
+
+        if(y > this.defaults.maxTop - this.defaults.offsetHeight){
+            return;
+        }
+
+        if(y < this.defaults.minTop - this.defaults.offsetHeight){
+            return;
+        }
 
         this.scrollList.css({
             transform      : `translate3d(0, ${ y + this.defaults.offsetHeight}px, 0)`,
